@@ -9,6 +9,7 @@ const port = 5000
 app.use(express.json())
 app.use(cors())
 const uri = `mongodb+srv://db-user:tabassum20@cluster0.hujna.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+
 const client = new MongoClient(uri, {
     serverApi: {
       version: ServerApiVersion.v1,
@@ -21,16 +22,35 @@ const client = new MongoClient(uri, {
       
       await client.connect();
       const menuCollection = client.db("restaurant").collection("menu");
+      const reviewsCollection = client.db("restaurant").collection("reviews");
+      const cartCollection = client.db("restaurant").collection("carts");
+      
+      // menu collection
 app.get('/menu', async(req, res)=>{
-    const menuData = await
+    const menuData = await 
      menuCollection.find().toArray()
     res.send(menuData);
 })
-      await client.db("admin").command({ ping: 1 });
-      console.log("Pinged your deployment. You successfully connected to MongoDB!");
+// review collection
+app.get('/reviews' , async(req, res)=>{
+  const reviewsData = await reviewsCollection.find().toArray()
+  res.send(reviewsData)
+})
+// cart api
+app.post('/carts', async(req,res)=>{
+const cart= req.body;
+  const result = await cartCollection.insertOne(cart)
+  res.send(result);
+})
+     app.get('/carts', async(req, res)=>{
+      const email = req.query.email;
+      const query = {email: email}
+      const result = await cartCollection.find(query).toArray()
+      res.send(result)
+     })
     } finally {
 
-    //   await client.close();
+    
     }
   }
   run().catch(console.dir);
@@ -42,7 +62,6 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
-
 
 // nameing convention
 app.get('/user')
